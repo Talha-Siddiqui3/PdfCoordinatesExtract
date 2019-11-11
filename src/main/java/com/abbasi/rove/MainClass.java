@@ -28,11 +28,11 @@ public class MainClass {
 
         Scanner scanner = new Scanner(System.in);
         print("Please enter the main location containing the folder of past papers");
-  //      String mainLocation = scanner.nextLine();
-        print("Please enter the name of the subject");
-//        String subjectName = scanner.nextLine();
+     String mainLocation = scanner.nextLine();
+       /* print("Please enter the name of the subject");
+    String subjectName = scanner.nextLine();*/
 
-        String mainLocation = "/Volumes/MyDrive/TestCropper/Latest";
+      //  String mainLocation = "/Volumes/MyDrive/TestCropper/Latest";
         String subjectName = "Chemistry5070";
 //
        CropQuestions(subjectName,mainLocation);

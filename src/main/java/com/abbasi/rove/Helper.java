@@ -20,42 +20,41 @@ import java.util.ArrayList;
 public class Helper {
 
 
-    static void print(Object text){
+    static void print(Object text) {
         System.out.println(text);
     }
 
-    static QuestionObj getPreviousObj(ArrayList<QuestionObj> questionObjs){
+    static QuestionObj getPreviousObj(ArrayList<QuestionObj> questionObjs) {
 
         try {
-            return  questionObjs.get(questionObjs.size()-1);
-        }catch (IndexOutOfBoundsException e){
+            return questionObjs.get(questionObjs.size() - 1);
+        } catch (IndexOutOfBoundsException e) {
             //print(questionObjs.size());
             return null;
         }
 
     }
 
-      static QuestionObj getNext(ArrayList<QuestionObj> questionObjs, int x){
-        try{
-            return questionObjs.get(x+1);
-        }catch (IndexOutOfBoundsException e){
+    static QuestionObj getNext(ArrayList<QuestionObj> questionObjs, int x) {
+        try {
+            return questionObjs.get(x + 1);
+        } catch (IndexOutOfBoundsException e) {
             print(questionObjs.size());
             return null;
         }
     }
 
 
+    static void toImage(File[] files) {
 
-   static void toImage(File[] files){
 
-
-        try{
+        try {
             String parentDir = files[0].getParent();
-            parentDir += "/"+ files[0].getName().replace(".pdf","");
+            parentDir += "/" + files[0].getName().replace(".pdf", "");
             File exportDir = new File(parentDir);
             exportDir.mkdirs();
 
-            for(File pdf: files){
+            for (File pdf : files) {
 
                 final PDDocument document = PDDocument.load(pdf);
                 PDFRenderer pdfRenderer = new PDFRenderer(document);
@@ -64,11 +63,11 @@ public class Helper {
 
 
                     String dest = "";
-                    if(pdf.getName().contains("Continued")){
-                        dest  = parentDir + "/"+pdf.getName().replace(".pdf","")+page+".png";
+                    if (pdf.getName().contains("Continued")) {
+                        dest = parentDir + "/" + pdf.getName().replace(".pdf", "") + page + ".png";
 
-                    }else{
-                        dest = parentDir + "/"+pdf.getName().replace(".pdf","")+".png";
+                    } else {
+                        dest = parentDir + "/" + pdf.getName().replace(".pdf", "") + ".png";
 
                     }
 
@@ -79,27 +78,27 @@ public class Helper {
                 pdf.delete();
 
             }
-            String exportName = files[0].getName().replace(".pdf",".png");
+            String exportName = files[0].getName().replace(".pdf", ".png");
             String exportFolder = files[0].getParent();
 
-            File finalImage = new File(exportFolder+"/"+exportName);
+            File finalImage = new File(exportFolder + "/" + exportName);
 
-            getAllImagesInFolder(exportDir,finalImage);
+            getAllImagesInFolder(exportDir, finalImage);
 
 
-        }catch (IOException e){
-            System.out.println("Exception @/MainClass/pdfToImage: "+e.getLocalizedMessage());
+        } catch (IOException e) {
+            System.out.println("Exception @/MainClass/pdfToImage: " + e.getLocalizedMessage());
 
         }
 
     }
 
 
-    private static void getAllImagesInFolder(File src, File dest) throws IOException{
+    private static void getAllImagesInFolder(File src, File dest) throws IOException {
         ArrayList<File> images = new ArrayList<File>();
-        for(File file :src.listFiles()){
+        for (File file : src.listFiles()) {
             String name = file.getName();
-            if(name.contains(".png"))
+            if (name.contains(".png"))
                 images.add(file);
 
         }
@@ -130,8 +129,8 @@ public class Helper {
             }
             document.close();
             src.delete();
-        }catch (IOException e){
-            System.out.println("Exception @/MainClass/pdfToImage: "+e.getLocalizedMessage());
+        } catch (IOException e) {
+            System.out.println("Exception @/MainClass/pdfToImage: " + e.getLocalizedMessage());
         }
     }
 
@@ -161,9 +160,7 @@ public class Helper {
     }
 
     static void FormatPaper(File preface, File dest) throws IOException {
-        System.out.println("Formatting Paper: "+ preface.getName());
-
-
+        System.out.println("Formatting Paper: " + preface.getName());
 
 
         //File savedTo = new File(path+"/"+newName);
@@ -172,19 +169,17 @@ public class Helper {
         PDDocument newDoc = new PDDocument();
         PDFTextStripper pdfStripper = new PDFTextStripper();
 
-        for(int x =0; x< doc.getNumberOfPages();x++) {
-            pdfStripper.setStartPage(x+1);
-            pdfStripper.setEndPage(x+1);
-
-
+        for (int x = 0; x < doc.getNumberOfPages(); x++) {
+            pdfStripper.setStartPage(x + 1);
+            pdfStripper.setEndPage(x + 1);
 
 
             String parsedText = pdfStripper.getText(doc);
 
 
-            String edited = parsedText.replace("\n","")
-                    .replace("\r","").replace("ForExaminer’sUse","")
-                    .replaceAll("\\.","").replace("[Turn over","").trim();
+            String edited = parsedText.replace("\n", "")
+                    .replace("\r", "").replace("ForExaminer’sUse", "")
+                    .replaceAll("\\.", "").replace("[Turn over", "").trim();
 
             PDPage page = doc.getPage(x);
 
@@ -211,15 +206,20 @@ public class Helper {
         doc.close();
     }
 
-    static void hideNumber(QuestionObj qp, String locationOfPDfOriginal){
+    static void hideNumber(QuestionObj qp, String locationOfPDfOriginal) {
+        if(exceptionPDF(locationOfPDfOriginal)){
+            return;
+        }
         try {
 
 
             PDDocument doc = PDDocument.load(new File(locationOfPDfOriginal));
-            PDPage page = doc.getPage(qp.pageNumber-1);
+            PDPage page = doc.getPage(qp.pageNumber - 1);
             PDPageContentStream content = new PDPageContentStream(doc, page, true, false);
 
-            content.addRect(qp.xPos, qp.yPos-35, 70, 30);
+            float yPos = exceptionPDF(locationOfPDfOriginal) ? qp.yPos - 35 : 0;
+
+            content.addRect(qp.xPos, yPos, 70, 30);
 
             content.setNonStrokingColor(Color.WHITE);
             content.fill();
@@ -230,36 +230,37 @@ public class Helper {
             doc.close();
 
 
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 
-
     static void groupFiles(File location, String mainLocation, String exportDirName) {
-System.out.println(location);
+        System.out.println(location);
         try {
 
-            File baseFolder = new File(mainLocation,exportDirName);
+            File baseFolder = new File(mainLocation, exportDirName);
 
-            for (File files: location.listFiles()) {
-               if(files.getName().equals(".DS_Store")){continue;}
+            for (File files : location.listFiles()) {
+                if (files.getName().equals(".DS_Store")) {
+                    continue;
+                }
 
-                if(!files.isDirectory()) {
+                if (!files.isDirectory()) {
                     String nameOfFile = files.getName();
                     String modifyName = nameOfFile.split("-")[1];
                     String newFolderName = nameOfFile.split("-")[0];
 
                     //String originalPath = files.getParent();
-                    String newFolderPath = baseFolder.getAbsolutePath()+ File.separator + newFolderName;
+                    String newFolderPath = baseFolder.getAbsolutePath() + File.separator + newFolderName;
                     new File(newFolderPath).mkdirs();
 
                     String newFileLocation = newFolderPath + File.separator + modifyName;
                     FileUtils.copyFile(files, new File(newFileLocation));
 
 
-                }else {
+                } else {
 
                     String folderName = files.getName();
                     String newFolderName = folderName.split("-")[0];
@@ -268,9 +269,7 @@ System.out.println(location);
 //                    String originalPath = files.getParent();
 
 
-
-
-                    String mainFolderPath = baseFolder.getAbsolutePath() +File.separator + newFolderName;
+                    String mainFolderPath = baseFolder.getAbsolutePath() + File.separator + newFolderName;
                     String newFoldersPath = mainFolderPath + File.separator + modifyName;
                     new File(newFoldersPath).mkdirs();
                     FileUtils.copyDirectory(files, new File(newFoldersPath));
@@ -280,43 +279,38 @@ System.out.println(location);
             }
 
 
-        }catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-
 
 
     }
 
 
-     static void cropPdfTester(float up, float down, float xPos, int pageNumber, File dest, String source)   {
+    static void cropPdfTester(float up, float down, float xPos, int pageNumber, File dest, String source) {
         //Adjusting the page number for the pdfBox library.
         pageNumber -= 1;
         float newXPos = 35;
-
-
 
 
         try {
             PDDocument doc = PDDocument.load(new File(source));
             PDDocument newDoc = new PDDocument();
             PDPage page = doc.getPage(pageNumber);
-            down = (down == -1) ? page.getBBox().getHeight(): down;
+            down = (down == -1) ? page.getBBox().getHeight() : down;
 
 
             float crop_height = down - up;
 
-            float width = (xPos != 0.0) ? xPos : doc.getPage(pageNumber).getBBox().getWidth() -xPos;
+            float width = (xPos != 0.0) ? xPos : doc.getPage(pageNumber).getBBox().getWidth() - xPos;
 
 
-                System.out.println("SWITCHING COORDINATES");
-                float[] newValues = switchCoordinates(width,crop_height,newXPos,up);
-                width = newValues[0];
-                crop_height = newValues[1];
-                newXPos = newValues[2];
-                up = newValues[3];
+            System.out.println("SWITCHING COORDINATES");
+            float[] newValues = switchCoordinates(width, crop_height, newXPos, up);
+            width = newValues[0];
+            crop_height = newValues[1];
+            newXPos = newValues[2];
+            up = newValues[3];
 
 
             page.setCropBox(new PDRectangle(newXPos, up, width, crop_height));
@@ -325,15 +319,15 @@ System.out.println(location);
             doc.close();
             newDoc.close();
 
-        }catch (IOException e){
-            System.out.println("An IOException occurred @Cropper/cropPdf: "+ e.getLocalizedMessage());
+        } catch (IOException e) {
+            System.out.println("An IOException occurred @Cropper/cropPdf: " + e.getLocalizedMessage());
             System.exit(61);
         }
 
     }
 
-     static float[] switchCoordinates(float width, float height, float x , float y){
-        System.out.println(width + " " + height + " " + x + " "+ y);
+    static float[] switchCoordinates(float width, float height, float x, float y) {
+        System.out.println(width + " " + height + " " + x + " " + y);
 
         float tempY = y;
         float temp_width = width + 200;
@@ -344,15 +338,16 @@ System.out.println(location);
         width = height;
         height = temp_width;
 
-        float[] returnValues = {width,height,x,y};
-        System.out.println(width + " " + height + " " + x + " "+ y);
+        float[] returnValues = {width, height, x, y};
+        System.out.println(width + " " + height + " " + x + " " + y);
 
         return returnValues;
 
     }
 
 
-    static Boolean exceptionPDF(String currentPdfName){
-        return(currentPdfName.contains("ms")&&(currentPdfName.contains("w16") || currentPdfName.contains("w17")||currentPdfName.contains("w18")||currentPdfName.contains("w19")
-                || currentPdfName.contains("s17") || currentPdfName.contains("s18") || currentPdfName.contains("s19")));}
+    static Boolean exceptionPDF(String currentPdfName) {
+        return (currentPdfName.contains("ms") && (currentPdfName.contains("w16") || currentPdfName.contains("w17") || currentPdfName.contains("w18") || currentPdfName.contains("w19")
+                || currentPdfName.contains("s17") || currentPdfName.contains("s18") || currentPdfName.contains("s19")));
+    }
 }
