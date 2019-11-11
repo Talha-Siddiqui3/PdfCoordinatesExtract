@@ -135,7 +135,7 @@ public class CSV_Parser {
         //Float xCoordinate = Float.parseFloat(xCoordinate_String);
 
         String YCoordinate_String = data[2].replace("\"","");
-        Float YCoordinate = Float.parseFloat(YCoordinate_String) + 30;
+        Float YCoordinate = Float.parseFloat(YCoordinate_String) + 10;
 
 
 
