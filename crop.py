@@ -136,7 +136,7 @@ for filename in os.listdir(root):
                                         x) + "," + str(y))
                                     storeIfGreater(filename + "_" + text[pos] + text[pos + 1], y,
                                                    str(x) + "," + str(y) + "," + str(pageNo), pageNo)
-                                    # questionToCoordinates[filename+"_"+text[pos] + text[pos + 1]] = str(x) + "," + str(y) + "," + str(pageNo)
+                                    #questionToCoordinates[filename+"_"+text[pos] + text[pos + 1]] = str(x) + "," + str(y) + "," + str(pageNo)
                                 elif text[pos].isdigit() and text[
                                     pos + 1].isdigit():  # and text[pos + 2] == " " and text[pos + 3] == " ":
                                     # print(text)
