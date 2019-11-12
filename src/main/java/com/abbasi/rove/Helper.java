@@ -159,49 +159,66 @@ public class Helper {
 
     }
 
+
+    static ArrayList<PDPage> reversePDFRemoval(PDDocument doc) throws IOException{
+        ArrayList<PDPage> pages = new ArrayList<>();
+
+
+        PDFTextStripper pdfStripper = new PDFTextStripper();
+
+
+        Boolean dontKeepPage = true;
+
+
+        for (int x = doc.getNumberOfPages() - 1; x >= 0; x--) {
+
+            pdfStripper.setStartPage(x + 1);
+            pdfStripper.setEndPage(x + 1);
+
+            String parsedText = pdfStripper.getText(doc);
+
+            if (dontKeepPage) {
+                dontKeepPage = shitPage(parsedText);
+                if (dontKeepPage){continue;}
+                }
+
+            pages.add(doc.getPage(x));
+
+        }
+
+          return pages;
+        }
+
+
+    static Boolean shitPage(String parsedText){
+        String edited = parsedText.replace("\n", "")
+                .replace("\r", "").replace("ForExaminer’sUse", "")
+                .replaceAll("\\.", "").replace("[Turn over", "").trim();
+
+        return  !(!parsedText.contains("BLANK PAGE") && !parsedText.contains("starts on the next page.")
+                    && !parsedText.contains("READ THESE INSTRUCTIONS FIRST")
+                    &&(edited.length() > 35));
+    }
+
     static void FormatPaper(File preface, File dest) throws IOException {
         System.out.println("Formatting Paper: " + preface.getName());
 
 
-        //File savedTo = new File(path+"/"+newName);
         PDDocument doc = PDDocument.load(preface);
 
         PDDocument newDoc = new PDDocument();
         PDFTextStripper pdfStripper = new PDFTextStripper();
 
-        for (int x = 0; x < doc.getNumberOfPages(); x++) {
-            pdfStripper.setStartPage(x + 1);
-            pdfStripper.setEndPage(x + 1);
+        ArrayList<PDPage> pageList = reversePDFRemoval(doc);
 
 
-            String parsedText = pdfStripper.getText(doc);
+        for (int x = pageList.size();x>= 0; x--) {
 
-
-            String edited = parsedText.replace("\n", "")
-                    .replace("\r", "").replace("ForExaminer’sUse", "")
-                    .replaceAll("\\.", "").replace("[Turn over", "").trim();
-
-            PDPage page = doc.getPage(x);
-
-
-//            if(!parsedText.contains("BLANK PAGE") && !parsedText.contains("starts on the next page.")
-//                    && !parsedText.contains("READ THESE INSTRUCTIONS FIRST")
-//                    &&(edited.length() > 35)
-//            ){
-//                newDoc.addPage(page); }}
-
-            newDoc.addPage(page);
+            newDoc.addPage(pageList.get(x));
         }
 
 
         newDoc.save(dest);
-
-//        String currentPdfName = preface.getName();
-//        if (currentPdfName.contains("ms")&&(currentPdfName.contains("w16") || currentPdfName.contains("w17")||currentPdfName.contains("w18")||currentPdfName.contains("w19")
-//            || currentPdfName.contains("s17") || currentPdfName.contains("s18") || currentPdfName.contains("s19"))){
-////
-//        rotatePDF(dest);
-//    }
         newDoc.close();
         doc.close();
     }
