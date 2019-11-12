@@ -124,7 +124,14 @@ public class Cropper {
 
                 System.out.println("Question ends on this page");
 
-                cropPdf(obj.yPos, bottomCropyPos, margin, obj.pageNumber, exportFile);
+                //for mcqs only
+                float newBottomCropyPos=bottomCropyPos;
+                System.out.println("NAAM "+currentPdfName.split("_")[3]);
+                String paperNumber=currentPdfName.split("_")[3];
+                if(paperNumber.equals("1")||paperNumber.equals("11")||paperNumber.equals("12")||paperNumber.equals("13")||paperNumber.equals("14")){
+                    newBottomCropyPos-=26;
+                }
+                cropPdf(obj.yPos, newBottomCropyPos, margin, obj.pageNumber, exportFile);
                 Helper.toImage(exportFile);
 
             }
@@ -267,10 +274,10 @@ public class Cropper {
 
     private void cropRemaining(int from, int to, File dest) {
         float minY;
-        if(currentPdfName.contains("qp")){
-            minY= Constants.minimumYPosQp;
-        }
-        else{   minY= Constants.minimumYPosMs;
+        if (currentPdfName.contains("qp")) {
+            minY = Constants.minimumYPosQp;
+        } else {
+            minY = Constants.minimumYPosMs;
 
         }
 
@@ -300,9 +307,8 @@ public class Cropper {
 //
 
 
-
                 float down = Helper.exceptionPDF(currentPdfName) ? 73 : minY;
-                float crop_height=0;
+                float crop_height = 0;
                 float end = 0;
 
                 //float crop_height = doc.getPage(x).getCropBox().getHeight();
@@ -313,13 +319,11 @@ public class Cropper {
                 //float crop_height =  end;
 
 
-
-                if (Helper.exceptionPDF(currentPdfName)){
+                if (Helper.exceptionPDF(currentPdfName)) {
                     if (!pagesEndyPosList.containsKey(x + 1)) {
-                        System.out.println("ERRROR" +currentPdfName+ "value: " +(x+1));
-                        crop_height=Math.abs(height - down);
-                    }
-                    else{
+                        System.out.println("ERRROR" + currentPdfName + "value: " + (x + 1));
+                        crop_height = Math.abs(height - down);
+                    } else {
                         end = pagesEndyPosList.get(x + 1);
 
 
@@ -328,32 +332,27 @@ public class Cropper {
                     }
 
 
-
-
-                }else{
+                } else {
                     if (!pagesEndyPosList.containsKey(x + 1)) {
-                   // System.out.println("ERRROR" +currentPdfName+ "value: " +(x+1));
-                    crop_height=Math.abs(height - down);
+                        // System.out.println("ERRROR" +currentPdfName+ "value: " +(x+1));
+                        crop_height = Math.abs(height - down);
+                    } else {
+                        down = Math.abs(height - down);
+                        end = pagesEndyPosList.get(x + 1);
+                        crop_height = end;
+                        //  System.out.println("HEIGHT:" + height+"Down: "+down);
+                        //System.out.println("IMPPPPP" + end + "PAGE NO:" + x);
+
+                        // crop_height = (height - end)-60;
+                        crop_height = (height - end) - minY;
+                        down = end;
+
+                    }
                 }
-                else{
-                    down = Math.abs(height-down);
-                    end = pagesEndyPosList.get(x + 1);
-                    crop_height =  end;
-                  //  System.out.println("HEIGHT:" + height+"Down: "+down);
-                    //System.out.println("IMPPPPP" + end + "PAGE NO:" + x);
-
-                   // crop_height = (height - end)-60;
-                    crop_height = (height - end)-minY;
-                    down = end;
-
-                }}
 
                 //end = Math.abs(height - end);
 
                 //down =
-
-
-
 
 
                 float width = (xPos != 0.0) ? xPos : doc.getPage(x).getBBox().getWidth() - xPos;
