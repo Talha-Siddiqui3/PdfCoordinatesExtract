@@ -28,11 +28,11 @@ public class MainClass {
 
         Scanner scanner = new Scanner(System.in);
         print("Please enter the main location containing the folder of past papers");
-     String mainLocation = scanner.nextLine();
+     //String mainLocation = scanner.nextLine();
        /* print("Please enter the name of the subject");
     String subjectName = scanner.nextLine();*/
 
-      //  String mainLocation = "/Volumes/MyDrive/TestCropper/Latest";
+      String mainLocation = "/Volumes/MyDrive/TestCropper/Latest";
         String subjectName = "Chemistry5070";
 //
        CropQuestions(subjectName,mainLocation);
@@ -61,10 +61,13 @@ public class MainClass {
 
         HashMap<String, HashMap<Integer,Float>> lastTextYPosList = new HashMap<>();
         HashMap<String, ArrayList<QuestionObj>> paper_list = new HashMap<>();
+        HashMap<String, HashMap<Integer,Boolean>> rightSide = new HashMap<>();
+
 
         CSV_Parser csv_parser = new CSV_Parser(mainLocation+"/crop_data.csv", mainLocation+"/crop_data_pagesLastText.csv");
         lastTextYPosList = csv_parser.loadLastPageText();
         paper_list = csv_parser.loadCSV();
+        rightSide = csv_parser.rightSideMargin();
 
 
         File source = new File(getAllPdfsInfolder(new File(mainLocation,subjectName),paper_list));
@@ -72,9 +75,11 @@ public class MainClass {
         for (String paper_name : paper_list.keySet()){
             HashMap<Integer, Float> yPosList = lastTextYPosList.get(paper_name);
             ArrayList<QuestionObj> questions_List = paper_list.get(paper_name);
+            HashMap<Integer,Boolean> rightSideMargin = rightSide.get(paper_name);
+
             File source_file = new File(source,paper_name);
 
-            Cropper cropper = new Cropper(source_file.getPath(),"CROPPED",yPosList,questions_List);
+            Cropper cropper = new Cropper(source_file.getPath(),"CROPPED",yPosList,questions_List,rightSideMargin);
             cropper.beginCropping();
 
 
@@ -87,7 +92,8 @@ public class MainClass {
     }
 
 
-   private static String getAllPdfsInfolder(File src, HashMap paper_list){
+
+    private static String getAllPdfsInfolder(File src, HashMap paper_list){
        String tempFolder = "CROPPED_TEMP";
     try {
 

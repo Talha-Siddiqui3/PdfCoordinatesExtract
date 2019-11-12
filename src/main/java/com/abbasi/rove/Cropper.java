@@ -17,19 +17,20 @@ public class Cropper {
     private String exportDirName;
     private String originalDir;
     private HashMap<Integer, Float> pagesEndyPosList;
-    //private HashMap<Integer,Float> rightSideUselesMargin;
+    private HashMap<Integer,Boolean> rightSideUselesMargin;
     private ArrayList<QuestionObj> pages;
 
-    Cropper(String source, String exportDIR, HashMap<Integer, Float> yPosDic, ArrayList<QuestionObj> paper_list) {
+    Cropper(String source, String exportDIR,HashMap<Integer,Float> yPosDic, ArrayList<QuestionObj> paper_list, HashMap<Integer,Boolean> rightSide){
         this.source = source;
         this.pages = paper_list;
         this.exportDirName = exportDIR;
         this.originalDir = new File(source).getParent();
-        this.currentPdfName = new File(source).getName().replace(".pdf", "");
+        this.currentPdfName = new File(source).getName().replace(".pdf","");
         this.pagesEndyPosList = yPosDic;
-        //this.rightSideUselesMargin = rightMarginDic;
+        this.rightSideUselesMargin = rightSide;
 
     }
+
 
 
     void beginCropping() {
@@ -71,9 +72,14 @@ public class Cropper {
 
 
         float margin = obj.xPos;
-//        if(rightSideUselesMargin.containsKey(obj.pageNumber)){
-//            margin = rightSideUselesMargin.get(obj.pageNumber);}
 
+        if(rightSideUselesMargin.containsKey(obj.pageNumber)){
+            if (rightSideUselesMargin.get(obj.pageNumber)){
+
+                margin = Constants.rightMargin;
+            }
+
+        }
 
         float bottomCropyPos = pagesEndyPosList.get(obj.pageNumber) != null ?
                 pagesEndyPosList.get(obj.pageNumber) : -1;
@@ -86,6 +92,17 @@ public class Cropper {
             float nextQuestionMargin = obj.xPos;
 //            float nextQuestionMargin = (rightSideUselesMargin.get(nextQuestion.pageNumber) != null)
 //                    ? rightSideUselesMargin.get(nextQuestion.pageNumber): 0;
+
+
+
+            if(rightSideUselesMargin.containsKey(nextQuestion.pageNumber)){
+                if (rightSideUselesMargin.get(nextQuestion.pageNumber)){
+
+                    nextQuestionMargin = Constants.rightMargin;
+                }
+
+            }
+
 
 
             //Case questions on the same page: Middle question
@@ -238,7 +255,7 @@ public class Cropper {
 
             float crop_height = down - up;
 
-            float width = (xPos != 0.0) ? xPos : doc.getPage(pageNumber).getBBox().getWidth() - xPos;
+            float width = doc.getPage(pageNumber).getBBox().getWidth() -xPos;
 
 
             if (Helper.exceptionPDF(currentPdfName)) {
@@ -297,14 +314,17 @@ public class Cropper {
             for (int x = from + 1; x < to; x++) {
 
                 System.out.println("Cropping");
+
+
                 float xPos = 0;
 
+                if ( rightSideUselesMargin.containsKey(x+1)){
+                    if (rightSideUselesMargin.get(x+1)){
+                        xPos = Constants.rightMargin;
+                    }
 
-                //   float yPos = doc.getPage(x).getCropBox().getLowerLeftY() + 15;
+                }
 
-//                float down = (pagesEndyPosList.get(x) == null) ?
-//                        Constants.minimumYPos : pagesEndyPosList.get(x);
-//
 
 
                 float down = Helper.exceptionPDF(currentPdfName) ? 73 : minY;
@@ -355,7 +375,7 @@ public class Cropper {
                 //down =
 
 
-                float width = (xPos != 0.0) ? xPos : doc.getPage(x).getBBox().getWidth() - xPos;
+                float width = doc.getPage(x).getBBox().getWidth() -xPos;
                 //  float crop_height = (down== -1) ? doc.getPage(x).getCropBox().getHeight() : doc.getPage(x).getCropBox().getHeight() - down;
 
 

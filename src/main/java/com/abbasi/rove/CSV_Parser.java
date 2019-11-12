@@ -124,6 +124,48 @@ public class CSV_Parser {
         return paperDic;
     }
 
+
+    public HashMap<String, HashMap<Integer,Boolean>> rightSideMargin(){
+        HashMap<String, HashMap<Integer,Boolean>> lastTextPaperList = new HashMap<>();
+        try {
+
+
+            FileReader reader = new FileReader(lastTextCSV);
+            BufferedReader br = new BufferedReader(reader);
+
+            String currentLine;
+
+            while ((currentLine = br.readLine()) != null) {
+
+
+                String[] commaBreak = currentLine.split(",");
+                String paperName = currentLine.split("-")[0];
+                String qNumber_String = commaBreak[0].split("-")[1];
+                Integer qNumber = Integer.parseInt(qNumber_String);
+                Boolean marginExists = commaBreak[1].split("-")[1].equals( "true");
+
+//                System.out.println(marginExists);
+
+                HashMap<Integer, Boolean> list = lastTextPaperList.get(paperName) != null ? lastTextPaperList.get(paperName)
+                        : new HashMap<Integer, Boolean>();
+
+                if(Helper.exceptionPDF(paperName)){
+                    marginExists = false;
+                }
+
+                list.put(qNumber,marginExists);
+                lastTextPaperList.put(paperName,list);
+            }
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return lastTextPaperList;
+
+    }
+
+
+
     private QuestionObj extractInformation(String line){
         String[] data = line.split(",");
 
