@@ -146,8 +146,9 @@ public class Cropper {
                 System.out.println("NAAM "+currentPdfName.split("_")[3]);
                 String paperNumber=currentPdfName.split("_")[3];
                 if(paperNumber.equals("1")||paperNumber.equals("11")||paperNumber.equals("12")||paperNumber.equals("13")||paperNumber.equals("14")){
-                    newBottomCropyPos-=26;
+                    newBottomCropyPos-=11;
                 }
+
                 cropPdf(obj.yPos, newBottomCropyPos, margin, obj.pageNumber, exportFile);
                 Helper.toImage(exportFile);
 

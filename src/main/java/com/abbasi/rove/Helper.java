@@ -160,7 +160,7 @@ public class Helper {
     }
 
 
-    static ArrayList<PDPage> reversePDFRemoval(PDDocument doc) throws IOException{
+    static ArrayList<PDPage> reversePDFRemoval(PDDocument doc) throws IOException {
         ArrayList<PDPage> pages = new ArrayList<>();
 
 
@@ -179,25 +179,29 @@ public class Helper {
 
             if (dontKeepPage) {
                 dontKeepPage = shitPage(parsedText);
-                if (dontKeepPage){continue;}
+             //   System.out.println(dontKeepPage+"123");
+                if (dontKeepPage) {
+                    continue;
                 }
+            }
 
             pages.add(doc.getPage(x));
 
         }
 
-          return pages;
-        }
+        return pages;
+    }
 
 
-    static Boolean shitPage(String parsedText){
+    static Boolean shitPage(String parsedText) {
         String edited = parsedText.replace("\n", "")
                 .replace("\r", "").replace("ForExaminer’sUse", "")
-                .replaceAll("\\.", "").replace("[Turn over", "").trim();
-
-        return  !(!parsedText.contains("BLANK PAGE") && !parsedText.contains("starts on the next page.")
-                    && !parsedText.contains("READ THESE INSTRUCTIONS FIRST")
-                    &&(edited.length() > 35));
+                .replaceAll("\\.", "").replace("[Turn over", "").replaceAll("[^A-Za-z0-9 ]", "").replaceAll(" +"," ");
+        /*System.out.println("BLANK" + edited);
+        System.out.println("BLANK" + edited.contains("Periodic Table"));*/
+        return !(!edited.contains("BLANK PAGE") && !edited.contains("starts on the next page.")
+                && !edited.contains("READ THESE INSTRUCTIONS FIRST") && !edited.contains("Periodic Table")
+                && (edited.length() > 35));
     }
 
     static void FormatPaper(File preface, File dest) throws IOException {
@@ -212,7 +216,7 @@ public class Helper {
         ArrayList<PDPage> pageList = reversePDFRemoval(doc);
 
 
-        for (int x = pageList.size();x>= 0; x--) {
+        for (int x = pageList.size() - 1; x >= 0; x--) {
 
             newDoc.addPage(pageList.get(x));
         }
@@ -224,7 +228,7 @@ public class Helper {
     }
 
     static void hideNumber(QuestionObj qp, String locationOfPDfOriginal) {
-        if(exceptionPDF(locationOfPDfOriginal)){
+        if (exceptionPDF(locationOfPDfOriginal)) {
             return;
         }
         try {
