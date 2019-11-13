@@ -169,7 +169,7 @@ public class Helper {
 
         Boolean dontKeepPage = true;
 
-
+        boolean lastPage = true;
         for (int x = doc.getNumberOfPages() - 1; x >= 0; x--) {
 
             pdfStripper.setStartPage(x + 1);
@@ -178,9 +178,10 @@ public class Helper {
             String parsedText = pdfStripper.getText(doc);
 
             if (dontKeepPage) {
-                dontKeepPage = shitPage(parsedText);
-             //   System.out.println(dontKeepPage+"123");
+                dontKeepPage = shitPage(parsedText,lastPage);
+                //   System.out.println(dontKeepPage+"123");
                 if (dontKeepPage) {
+                    lastPage=false;
                     continue;
                 }
             }
@@ -193,14 +194,14 @@ public class Helper {
     }
 
 
-    static Boolean shitPage(String parsedText) {
+    static Boolean shitPage(String parsedText, boolean lastPage) {
         String edited = parsedText.replace("\n", "")
                 .replace("\r", "").replace("ForExaminer’sUse", "")
-                .replaceAll("\\.", "").replace("[Turn over", "").replaceAll("[^A-Za-z0-9 ]", "").replaceAll(" +"," ");
-        /*System.out.println("BLANK" + edited);
-        System.out.println("BLANK" + edited.contains("Periodic Table"));*/
+                .replaceAll("\\.", "").replace("[Turn over", "").replaceAll("[^A-Za-z0-9 ]", "").replaceAll(" +", " ");
+       /* System.out.println("BLANK" + edited);
+        System.out.println("BLANK" + (edited.contains("Periodic") && lastPage));*/
         return !(!edited.contains("BLANK PAGE") && !edited.contains("starts on the next page.")
-                && !edited.contains("READ THESE INSTRUCTIONS FIRST") && !edited.contains("Periodic Table")
+                && !edited.contains("READ THESE INSTRUCTIONS FIRST") && !(edited.contains("Periodic") && lastPage)
                 && (edited.length() > 35));
     }
 
@@ -251,7 +252,7 @@ public class Helper {
             doc.close();
 
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
